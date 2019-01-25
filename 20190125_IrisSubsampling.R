@@ -32,7 +32,10 @@ compile(model, optimizer = "nadam",
 #     view_metrics = FALSE)
 
 # A bootstrap fitting algorithm
+# Set number of epochs
 outer_epochs <- 1000
+# Initialize metrics_history
+metrics_history <- NULL
 for (ii in 1:outer_epochs) {
   cat(ii,"\n")
   # Obtain a bootstrap sample (size n)
@@ -40,11 +43,13 @@ for (ii in 1:outer_epochs) {
   x_sample <- x_val[sample_list,]
   y_sample <- y_val[sample_list]
   # Run one internal epoch on boostrap sample
-  fit(model,x = as.matrix(x_sample), 
-      y = to_categorical(as.numeric(y_sample)-1),
-      batch_size = length(y_sample),
-      epochs = 1,
-      view_metrics = FALSE)
+  history <- fit(model,x = as.matrix(x_sample), 
+                  y = to_categorical(as.numeric(y_sample)-1),
+                  batch_size = length(y_sample),
+                  epochs = 1,
+                  view_metrics = FALSE)
+  metrics_history <- rbind(metrics_history,
+                           unlist(history$metrics))
 }
 
 # Make predictions
